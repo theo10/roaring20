@@ -28,7 +28,7 @@
                                 if(eUrl.indexOf("instagr.am")!=-1){
                                     $.getJSON("http://api.instagram.com/oembed?url="+eUrl+"&callback=?",function(i){
                                         //console.log(index);
-                                        $($('ul li')[index]).append("<br /><img src='"+i.url+"' />");
+                                        $($('ul li')[index]).append("<br /><img src='"+i.url+"' width='"+(i.width * 0.5)+"' height='"+(i.height * 0.5)+"' />");
                                     });
                                 }
                             }
