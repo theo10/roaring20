@@ -1,8 +1,10 @@
 
 /* For generic page styles. Not for sliders. */
 
-body {background:#F6F6F6;font:normal 0.9em Arial; margin:0; padding:0; padding-bottom:60px;}
+body {background:#000000;font:normal 0.9em Arial; margin:0; padding:0; padding-bottom:60px;}
 h2 {display:inline;}
+label{display:block;text-align:center;color:White;}
+.header {display:block;text-align:center;font-size:xx-large;color:White;}
 .div1, .div2 {width:700px;margin:0 auto;}
 .div1 {margin-top:30px;margin-bottom:60px;text-align:center;line-height:20px;}
 .div1 P {font-size:18px;}

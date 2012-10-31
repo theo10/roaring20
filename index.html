@@ -17,7 +17,7 @@
             retreiveTweets();
             function retreiveTweets() {
                 var nextPage = $('#nextTweets').attr('rel');
-                var rpp = 10;
+                var rpp = 20;
                 if ($.trim(nextPage) == '') {
                     nextPage = "?q=%23fun&rpp=" + rpp + "&include_entities=1";
                 }
@@ -72,7 +72,11 @@
 <body>
     <ul></ul>
 	<!--<a id="nextTweets" href="#" rel="">Load Next Tweets</a>-->
-    <label class="header">WELCOME TO THE ROARING 20's!!!</label>
+    <label class="header">WELCOME TO THE ROARING 20's!!!</label><br />
+    <label>You may post your photos with the hashtag #fun and it will be displayed on the big screen! This is FUN!!!</label>
+    <br />
+    <br />
+    <br />
     <div id="sliderFrame">
         <div id="ribbon">
         <div id="slider">
