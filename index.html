@@ -7,43 +7,57 @@
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
     <script type="text/javascript">
     $().ready(function(){
-        $.ajax({
-            url:'http://search.twitter.com/search.json?q=%23fun&rpp=10&include_entities=true&callback=?',
-            //url:'test.json',
-            dataType:'json',
-            crossDomain:true,
-            success:function(data){
-                $.each(data, function(index, results) {
-                    var r = results;
-                    if(typeof r=='object'){
-                        $.each(r, function(index,rObj) {
-                            $('ul').append("<li>from: "+rObj.from_user+ " - "  +rObj.text+ "</li>");
-                            var ent = rObj.entities;
-                            var urls = ent.urls[0];
-                            var img = "";
-                            if(typeof urls!='undefined'){
-                                //console.log(urls.expanded_url);
-                                //fetch instagram image
-                                var eUrl = urls.expanded_url;
-                                if(eUrl.indexOf("instagr.am")!=-1){
-                                    $.getJSON("http://api.instagram.com/oembed?url="+eUrl+"&callback=?",function(i){
-                                        //console.log(index);
-                                        $($('ul li')[index]).append("<br /><img src='"+i.url+"' width='"+(i.width * 0.5)+"' height='"+(i.height * 0.5)+"' />");
-                                    });
-                                }
-                            }
-                            
-                        });
-                    }
-                });
-            }
-        });
+        retreiveTweets();
+		function retreiveTweets(){
+			var nextPage = $('#nextTweets').attr('rel');
+			var rpp=10;
+			if($.trim(nextPage)==''){
+				nextPage = "?q=%23fun&rpp="+rpp+"&include_entities=1";
+			}
+			$.ajax({
+				url:'http://search.twitter.com/search.json'+nextPage+'&callback=?',
+				//url:'test.json',
+				dataType:'json',
+				crossDomain:true,
+				success:function(data){
+					$('#nextTweets').attr('rel',data.next_page);
+					var r = data.results;
+					var page = parseInt(data.page) -1;
+					var multiplier = page * rpp;
+					$.each(r, function(index,rObj) {
+						$('ul').append("<li>from: "+rObj.from_user+ " - "  +rObj.text+ "</li>");
+						var ent = rObj.entities;
+						var urls = ent.urls[0];
+						var img = "";
+						if(typeof urls!='undefined'){
+							//console.log(urls.expanded_url);
+							//fetch instagram image
+							var eUrl = urls.expanded_url;
+							index = parseInt(index) + parseInt(multiplier);
+							if(eUrl.indexOf("instagr.am")!=-1){
+								$.getJSON("http://api.instagram.com/oembed?url="+eUrl+"&callback=?",function(i){
+									$($('ul li')[index]).append("<br /><img src='"+i.url+"' width='"+(i.width * 0.5)+"' height='"+(i.height * 0.5)+"' />");
+								});
+							}
+						}
+						
+					});
+					$('#nextTweets').click(function(){
+						retreiveTweets();
+						return false;
+					});
+				}
+			});
+		}
     });
+	$('#nextTweets').click(function(){
+		retreiveTweets();
+		return false;
+	});
     </script>
 </head>
 <body>
-    <ul>
-        
-    </ul>
+    <ul></ul>
+	<a id="nextTweets" href="#" rel="">Load Next Tweets</a>
 </body>
 </html>
