@@ -1,0 +1,89 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+    <meta content="utf-8" http-equiv="encoding">
+    <title>Roaring 20</title>
+	<link rel="stylesheet" href="css/styles.css">
+	<link rel="stylesheet" href="js/superslides/stylesheets/superslides.css">
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+	<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.9.0/jquery-ui.min.js"></script>
+	<script src="js/superslides/jquery.superslides.min.js"></script>
+    <script type="text/javascript">
+        $().ready(function () {
+            retreiveTweets();
+            function retreiveTweets() {
+                var nextPage = $('#nextTweets').attr('rel');
+                var rpp = 20;
+                if ($.trim(nextPage) == '') {
+                    nextPage = "?q=%23fun&rpp=" + rpp + "&include_entities=1";
+                }
+                $.ajax({
+                    url: 'http://search.twitter.com/search.json' + nextPage + '&callback=?',
+                    //url:'test.json',
+                    dataType: 'json',
+                    crossDomain: true,
+                    success: function (data) {
+                        $('#nextTweets').attr('rel', data.next_page);
+                        var r = data.results;
+                        var page = parseInt(data.page) - 1;
+                        var multiplier = page * rpp;
+                        $.each(r, function (index, rObj) {
+							$('ul').append("<li><div class='container'>@" + rObj.from_user + " - " + rObj.text + "</div></li>");
+                            var ent = rObj.entities;
+                            var urls = ent.urls[0];
+                            var img = "";
+                            if (typeof urls != 'undefined') {
+                                //console.log(urls.expanded_url);
+                                //fetch instagram image
+                                var eUrl = urls.expanded_url;
+                                index = parseInt(index) + parseInt(multiplier);
+                                if (eUrl.indexOf("instagr.am") != -1) {
+                                    $.getJSON("http://api.instagram.com/oembed?url=" + eUrl + "&callback=?", function (i) {
+                                        var slideDiv = document.getElementById('slider');
+                                        //$($('ul li')[index]).prepend("<img src='" + i.url + "' width='" + (i.width * 0.5) + "' height='" + (i.height * 0.5) + "' />");
+										$($('ul li')[index]).prepend("<img src='" + i.url + "' width='" + (i.width ) + "' height='" + (i.height) + "'  />");
+                                    });
+                                }
+                            }
+
+                        });
+                        $('#nextTweets').click(function () {
+                            retreiveTweets();
+                            return false;
+                        });
+						$('#slides').superslides({
+							play: true,
+							slide_easing: 'easeInOutCubic',
+							slide_speed: 'normal',
+							pagination: true,
+							delay: 5000
+						  });
+                    }
+                });
+            }
+        });
+	$('#nextTweets').click(function(){
+		retreiveTweets();
+		return false;
+	});
+	$('#slides').superslides({
+		play: true,
+		slide_easing: 'easeInOutCubic',
+		slide_speed: 800,
+		pagination: true
+	  });
+    </script>
+</head>
+<body>
+    <div id="slides">
+    <ul class="slides-container">
+	</ul>
+	<nav class="slides-navigation">
+      <a href="#" class="next">Next</a>
+      <a href="#" class="prev">Previous</a>
+    </nav>
+	</div>
+	<a id="nextTweets" href="#" rel="">Load Next Tweets</a>
+</body>
+</html>
