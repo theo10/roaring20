@@ -18,11 +18,11 @@
   /*max-width: none;
   min-width: 100%;
   min-height: 100%;*/
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  margin: -306px 0 0 -306px;
-  width:612px;
+  position: absolute !important;
+  left: 50% !important;
+  top: 50% !important;
+  margin: -306px 0 0 -306px !important;
+  width:612px !important;
 }
 #slides .slides-container img.keep-original {
   min-width: 0;

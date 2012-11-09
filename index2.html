@@ -54,14 +54,13 @@
 								$('#slides').superslides('append', $li);
 							}
                         });
-						
-                        $('#nextTweets').click(function () {
+						$('#nextTweets').unbind('click').bind('click',function () {
                             retreiveTweets();
                             return false;
                         });
 						if(page==0){
 							$('#slides').superslides({
-								play: false,
+								play: true,
 								slide_easing: 'easeInOutCubic',
 								slide_speed: 800,
 								pagination: false
