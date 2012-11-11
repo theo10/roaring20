@@ -1,10 +1,13 @@
 body{
 	background:#000;
 }
-#nextTweets{
+#tweetLoader{
 	position:absolute;
 	float:left;
 	z-index:3;
 	left:0;
 	top:0;
+}
+#loader{
+	display:none;
 }

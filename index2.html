@@ -16,7 +16,10 @@
       <a href="#" class="prev">Previous</a>
     </nav>
 	</div>
+	<div id="tweetLoader">
 	<a id="nextTweets" href="#" rel="">Load Next Tweets</a>
+	<img id="loader" src="images/loading.gif" width="16" height="16" />
+	</div>
 	<script src="js/jquery.min.js"></script>
 	<script src="js/jquery-ui.min.js"></script>
 	<script src="js/superslides/jquery.superslides.min.js"></script>
@@ -24,6 +27,7 @@
         $().ready(function () {
             retreiveTweets();
             function retreiveTweets() {
+				$('#loader').show();
                 var nextPage = $('#nextTweets').attr('rel');
                 var rpp = 5;
                 if ($.trim(nextPage) == '') {
@@ -78,7 +82,7 @@
 								pagination: false
 							  });
 						}
-						
+						$('#loader').hide();
                     }
                 });
             }
