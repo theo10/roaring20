@@ -26,6 +26,10 @@
     <script type="text/javascript">
         $().ready(function () {
             retreiveTweets();
+			$('#nextTweets').click(function(){
+				retreiveTweets();
+				return false;
+			});
             function retreiveTweets() {
 				$('#loader').show();
                 var nextPage = $('#nextTweets').attr('rel');
@@ -87,10 +91,7 @@
                 });
             }
         });
-	$('#nextTweets').click(function(){
-		retreiveTweets();
-		return false;
-	});
+	
     </script>
 </body>
 </html>
