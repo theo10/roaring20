@@ -46,10 +46,10 @@
   top: 25%;
   min-height: 300px;
   padding: 30px;
-  background: white;
-  background: rgba(0, 0, 0, 0.8);
+  background: #000;
+  background: rgba(0, 0, 0, 0.65);
   color:#C7A317;
-  font-size:50px;
+  font-size:60px;
 }
 #slides .scrollable {
   *zoom: 1;
