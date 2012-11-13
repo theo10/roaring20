@@ -30,6 +30,9 @@
 				retreiveTweets();
 				return false;
 			});
+			setInterval(function(){
+				$('#nextTweets').trigger('click');
+			},30000);
             function retreiveTweets() {
 				$('#loader').show();
                 var nextPage = $('#nextTweets').attr('rel');
@@ -91,7 +94,7 @@
                 });
             }
         });
-	
+		
     </script>
 </body>
 </html>
