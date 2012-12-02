@@ -52,7 +52,7 @@
                         var multiplier = page * rpp;
                         $.each(r, function (index, rObj) {
 							//$('ul').append("<li><div class='container'>@" + rObj.from_user + " - " + rObj.text + "</div></li>");
-							$li = $("<li><div class='container'>@" + rObj.from_user + " - " + rObj.text + "</div></li>");
+							$li = $("<li><div class='container'>@" + rObj.from_user + " - " + rObj.text + "</div><a href='#' class='btnremove'>remove</a></li>");
                             var ent = rObj.entities;
                             var urls = ent.urls[0];
                             var img = "";
@@ -78,6 +78,11 @@
                         });
 						$('#nextTweets').unbind('click').bind('click',function () {
                             retreiveTweets();
+                            return false;
+                        });
+						$('.btnremove').unbind('click').bind('click',function () {
+							$('#slides').superslides('next');
+							$(this).parent().remove();
                             return false;
                         });
 						if(page==0){

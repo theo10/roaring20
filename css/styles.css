@@ -11,3 +11,8 @@ body{
 #loader{
 	display:none;
 }
+.btnremove{
+	bottom:0;
+	position:absolute;
+	left:0;
+}
