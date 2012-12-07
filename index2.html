@@ -25,79 +25,90 @@
 	<script src="js/superslides/jquery.superslides.min.js"></script>
     <script type="text/javascript">
         $().ready(function () {
-            retreiveTweets();
+             var rpp = 5;
+            //retreiveTweets(rpp);
+			$('#nextTweets').attr('rel',"?q=%23roar20sparty&rpp=" + rpp + "&include_entities=1");
 			$('#nextTweets').click(function(){
-				retreiveTweets();
+				retreiveTweets(rpp);
 				return false;
 			});
+			$('#nextTweets').trigger('click');
 			setInterval(function(){
 				$('#nextTweets').trigger('click');
 			},30000);
-            function retreiveTweets() {
+            function retreiveTweets(rpp) {
 				$('#loader').show();
                 var nextPage = $('#nextTweets').attr('rel');
                 var rpp = 5;
-                if ($.trim(nextPage) == '') {
-                    nextPage = "?q=%23fun&rpp=" + rpp + "&include_entities=1";
-                }
-                $.ajax({
-                    url: 'http://search.twitter.com/search.json' + nextPage + '&callback=?',
-                    //url:'test.json',
-                    dataType: 'json',
-                    crossDomain: true,
-                    success: function (data) {
-                        $('#nextTweets').attr('rel', data.next_page);
-                        var r = data.results;
-                        var page = parseInt(data.page) - 1;
-                        var multiplier = page * rpp;
-                        $.each(r, function (index, rObj) {
-							//$('ul').append("<li><div class='container'>@" + rObj.from_user + " - " + rObj.text + "</div></li>");
-							$li = $("<li><div class='container'>@" + rObj.from_user + " - " + rObj.text + "</div><a href='#' class='btnremove'>remove</a></li>");
-                            var ent = rObj.entities;
-                            var urls = ent.urls[0];
-                            var img = "";
-                            if (typeof urls != 'undefined') {
-                                //console.log(urls.expanded_url);
-                                //fetch instagram image
-                                var eUrl = urls.expanded_url;
-                                index = parseInt(index) + parseInt(multiplier);
-                                if (eUrl.indexOf("instagr.am") != -1) {
-                                    $.getJSON("http://api.instagram.com/oembed?url=" + eUrl + "&callback=?", function (i) {
-                                        var slideDiv = document.getElementById('slider');
-                                        //$($('ul li')[index]).prepend("<img src='" + i.url + "' width='" + (i.width * 0.5) + "' height='" + (i.height * 0.5) + "' />");
-										$($('ul li')[index]).prepend("<img src='" + i.url + "' width='" + (i.width ) + "' height='" + (i.height) + "'  />");
-										//$li.prepend("<img src='" + i.url + "' width='" + (i.width ) + "' height='" + (i.height) + "'  />");
-                                    });
-                                }
-                            }
-							if(page==0){
-								$('ul').append($li);
+               if ($.trim(nextPage) == '') {
+					$('#nextTweets').attr('rel',"");
+					$('#loader').hide();
+                    return false
+                }else{
+					$.ajax({
+						url: 'http://search.twitter.com/search.json' + nextPage + '&callback=?',
+						//url:'test.json',
+						dataType: 'json',
+						crossDomain: true,
+						success: function (data) {
+							if(data.next_page==undefined){
+								$('#nextTweets').attr('rel', "");
+								$('#loader').hide();
 							}else{
-								$('#slides').superslides('append', $li);
+								$('#nextTweets').attr('rel', data.next_page);
 							}
-                        });
-						$('#nextTweets').unbind('click').bind('click',function () {
-                            retreiveTweets();
-                            return false;
-                        });
-						$('.btnremove').unbind('click').bind('click',function () {
-							$('#slides').superslides('next');
-							$(this).parent().remove();
-                            return false;
-                        });
-						if(page==0){
-							$('#slides').superslides({
-								play: true,
-								slide_easing: 'easeInOutCubic',
-								slide_speed: 800,
-								delay: 8000,
-								pagination: false
-							  });
+							var r = data.results;
+							var page = parseInt(data.page) - 1;
+							var multiplier = page * rpp;
+							$.each(r, function (index, rObj) {
+								//$('ul').append("<li><div class='container'>@" + rObj.from_user + " - " + rObj.text + "</div></li>");
+								$li = $("<li><div class='container'>@" + rObj.from_user + " - " + rObj.text + "</div><a href='#' class='btnremove'>remove</a></li>");
+								var ent = rObj.entities;
+								var urls = ent.urls[0];
+								var img = "";
+								if (typeof urls != 'undefined') {
+									//console.log(urls.expanded_url);
+									//fetch instagram image
+									var eUrl = urls.expanded_url;
+									index = parseInt(index) + parseInt(multiplier);
+									if (eUrl.indexOf("instagr.am") != -1) {
+										$.getJSON("http://api.instagram.com/oembed?url=" + eUrl + "&callback=?", function (i) {
+											var slideDiv = document.getElementById('slider');
+											//$($('ul li')[index]).prepend("<img src='" + i.url + "' width='" + (i.width * 0.5) + "' height='" + (i.height * 0.5) + "' />");
+											$($('ul li')[index]).prepend("<img src='" + i.url + "' width='" + (i.width ) + "' height='" + (i.height) + "'  />");
+											//$li.prepend("<img src='" + i.url + "' width='" + (i.width ) + "' height='" + (i.height) + "'  />");
+										});
+									}
+								}
+								if(page==0){
+									$('ul').append($li);
+								}else{
+									$('#slides').superslides('append', $li);
+								}
+							});
+							$('#nextTweets').unbind('click').bind('click',function () {
+								retreiveTweets(rpp);
+								return false;
+							});
+							$('.btnremove').unbind('click').bind('click',function () {
+								$('#slides').superslides('next');
+								$(this).parent().remove();
+								return false;
+							});
+							if(page==0){
+								$('#slides').superslides({
+									play: true,
+									slide_easing: 'easeInOutCubic',
+									slide_speed: 800,
+									delay: 8000,
+									pagination: false
+								  });
+							}
+							$('#loader').hide();
 						}
-						$('#loader').hide();
-                    }
-                });
-            }
+					});
+				}
+			}
         });
 		
     </script>
