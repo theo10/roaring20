@@ -25,7 +25,7 @@
 	<script src="js/superslides/jquery.superslides.min.js"></script>
     <script type="text/javascript">
         $().ready(function () {
-             var rpp = 5;
+             var rpp = 10;
             //retreiveTweets(rpp);
 			$('#nextTweets').attr('rel',"?q=%23roar20sparty&rpp=" + rpp + "&include_entities=1");
 			$('#nextTweets').click(function(){
@@ -35,11 +35,10 @@
 			$('#nextTweets').trigger('click');
 			setInterval(function(){
 				$('#nextTweets').trigger('click');
-			},30000);
+			},5000);
             function retreiveTweets(rpp) {
 				$('#loader').show();
                 var nextPage = $('#nextTweets').attr('rel');
-                var rpp = 5;
                if ($.trim(nextPage) == '') {
 					$('#nextTweets').attr('rel',"");
 					$('#loader').hide();
@@ -126,5 +125,15 @@
         });
 		
     </script>
+	<script type="text/javascript">
+    window.onload = setupRefresh;
+
+    function setupRefresh() {
+      setTimeout("refreshPage();", 60000); // milliseconds
+    }
+    function refreshPage() {
+       window.location = location.href;
+    }
+  </script>
 </body>
 </html>
