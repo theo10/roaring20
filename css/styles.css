@@ -12,7 +12,12 @@ body{
 	display:none;
 }
 .btnremove{
-	bottom:0;
+	bottom:20px;
 	position:absolute;
 	left:0;
+}
+.togglecontent{
+	bottom:20px;
+	position:absolute;
+	left:50px;
 }
