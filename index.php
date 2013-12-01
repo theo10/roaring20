@@ -1,12 +1,12 @@
 ﻿<?php
-if(!session_id()) {
-	session_start();
-}
-require_once('lib.php');//contains the OAuth for twitter
+session_start();
+
+require_once('twitteroauth/twitteroauth.php');
+require_once('config.php');
 if(!isset($_SESSION['oauth_token']) && !isset($_SESSION['oauth_token_secret'])){
-	$CONSUMER_KEY = 'Ot387nC9IdcJAWivEcn5dA';
-	$CONSUMER_SECRET = 'ZpaT84ZVntJk75JQFsxgXzrBpoTlODU17LdYQNDhdY';
-	$OAUTH_CALLBACK = 'http://xampp.localserver.com:91/roaring20/index.php';
+	$CONSUMER_KEY = CONSUMER_KEY;
+	$CONSUMER_SECRET = CONSUMER_SECRET;
+	$OAUTH_CALLBACK = OAUTH_CALLBACK;
 	
 	$connection = new TwitterOAuth($CONSUMER_KEY, $CONSUMER_SECRET);
 	$request_token = $connection->getRequestToken($OAUTH_CALLBACK);
@@ -20,6 +20,7 @@ if(!isset($_SESSION['oauth_token']) && !isset($_SESSION['oauth_token_secret'])){
 		case 200:
 			/* Build authorize URL and redirect user to Twitter. */
 			$url = $connection->getAuthorizeURL($token);
+			$_SESSION['status'] = 'verified';
 			header('Location: ' . $url);
 			exit;
 		  break;
@@ -30,17 +31,22 @@ if(!isset($_SESSION['oauth_token']) && !isset($_SESSION['oauth_token_secret'])){
 	}
 }
 if(isset($_REQUEST['oauth_token']) && isset($_SESSION['oauth_token']) && isset($_SESSION['oauth_token_secret'])){
-	$CONSUMER_KEY = 'Ot387nC9IdcJAWivEcn5dA';
-	$CONSUMER_SECRET = 'ZpaT84ZVntJk75JQFsxgXzrBpoTlODU17LdYQNDhdY';
+	$CONSUMER_KEY = CONSUMER_KEY;
+	$CONSUMER_SECRET = CONSUMER_SECRET;
+	$rpp = '';
+	$rpp = ($_GET['rpp'] * 1)?$_GET['rpp']:10;
+	
 	$connection = new TwitterOAuth($CONSUMER_KEY, $CONSUMER_SECRET, $_SESSION['oauth_token'], $_SESSION['oauth_token_secret']);
-	$access_token = $connection->getAccessToken($_GET['oauth_verifier']);
-	$content = $connection->get('account/verify_credentials');
-	//print_r($content);
+	$access_token = $connection->getAccessToken($_REQUEST['oauth_verifier']);
+	$_SESSION['access_token'] = $access_token;
+	$content =$connection->get('https://api.twitter.com/1.1/search/tweets.json?q=%23jsconfasia&include_entities=1&rpp=');
+	print_r($content);
+	die();
 	//print_r($connection);
 	//echo $content->name;
 	if (200 == $connection->http_code) {
-		var_dump($connection->get('/search/tweets.json?q=%23susnavgala')  );
-		
+		//var_dump($connection->get('/search/tweets.json?q=%23susnavgala')  );
+		$_SESSION['status'] = 'verified';
 	}
 }
 ?>
