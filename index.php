@@ -1,8 +1,61 @@
 ﻿<?php
 session_start();
-
+error_reporting(0);
 require_once('twitteroauth/twitteroauth.php');
 require_once('config.php');
+
+$CONSUMER_KEY = CONSUMER_KEY;
+$CONSUMER_SECRET = CONSUMER_SECRET;
+$OAUTH_CALLBACK = OAUTH_CALLBACK;
+$HASHTAG = HASHTAG;
+
+//
+//if(!isset($_SESSION['oauth_token']) && !isset($_SESSION['oauth_token_secret'])){
+//	$connection = new TwitterOAuth($CONSUMER_KEY, $CONSUMER_SECRET);
+//	$request_token = $connection->getRequestToken($OAUTH_CALLBACK);
+//	$_SESSION['oauth_token'] = $token = $request_token['oauth_token'];
+//	$_SESSION['oauth_token_secret'] = $request_token['oauth_token_secret'];
+//	
+//	//$token = $request_token['oauth_token'];
+//	//setcookie("oauth_token",$token,time()+60*60*24);
+//	//setcookie("oauth_token_secret",$request_token['oauth_token_secret'],time()+60*60*24);
+//	switch ($connection->http_code) {
+//		case 200:
+//			/* Build authorize URL and redirect user to Twitter. */
+//			$url = $connection->getAuthorizeURL($token);
+//			header('Location: ' . $url);
+//			exit;
+//		  break;
+//		default:
+//			/* Show notification if something went wrong. */
+//			clearSession();
+//			$error=true;
+//			wp_redirect(add_query_arg( 'n', wp_create_nonce ('fail_twitter'), get_permalink($_POST['asop_postid']) ));
+//			exit;
+//	}
+//	
+//}
+
+
+
+/* Get user access tokens out of the session. */
+$access_token = $_SESSION['access_token'];
+
+/* Create a TwitterOauth object with consumer/user tokens. */
+$connection = new TwitterOAuth(CONSUMER_KEY, CONSUMER_SECRET, $access_token['oauth_token'], $access_token['oauth_token_secret']);
+
+/* If method is set change API call made. Test is called by default. */
+//$content = $connection->get('account/verify_credentials');
+
+/* Some example calls */
+//$connection->get('users/show', array('screen_name' => 'abraham'));
+//$connection->post('statuses/update', array('status' => date(DATE_RFC822)));
+//$connection->post('statuses/destroy', array('id' => 5437877770));
+//$connection->post('friendships/create', array('id' => 9436992));
+//$connection->post('friendships/destroy', array('id' => 9436992));
+//var_dump($connection->get('users/show', array('screen_name' => 'theoalsie')));
+//$content = ($connection->get('https://api.twitter.com/1.1/search/tweets.json?q=%23jsconfasia'));
+//print_r($content);
 if(!isset($_SESSION['oauth_token']) && !isset($_SESSION['oauth_token_secret'])){
 	$CONSUMER_KEY = CONSUMER_KEY;
 	$CONSUMER_SECRET = CONSUMER_SECRET;
@@ -13,6 +66,7 @@ if(!isset($_SESSION['oauth_token']) && !isset($_SESSION['oauth_token_secret'])){
 	$_SESSION['oauth_token'] = $token = $request_token['oauth_token'];
 	$_SESSION['oauth_token_secret'] = $request_token['oauth_token_secret'];
 	
+	$_SESSION['access_token'] = $access_token;
 	//$token = $request_token['oauth_token'];
 	//setcookie("oauth_token",$token,time()+60*60*24);
 	//setcookie("oauth_token_secret",$request_token['oauth_token_secret'],time()+60*60*24);
@@ -29,19 +83,26 @@ if(!isset($_SESSION['oauth_token']) && !isset($_SESSION['oauth_token_secret'])){
 			die('error');
 			exit;
 	}
+}elseif (isset($_REQUEST['oauth_token']) && $_SESSION['oauth_token'] === $_REQUEST['oauth_token']) {
+	$connection = new TwitterOAuth(CONSUMER_KEY, CONSUMER_SECRET, $_SESSION['oauth_token'], $_SESSION['oauth_token_secret']);
+
+	/* Request access tokens from twitter */
+	$access_token = $connection->getAccessToken($_REQUEST['oauth_verifier']);
+	
+	/* Save the access tokens. Normally these would be saved in a database for future use. */
+	$_SESSION['access_token'] = $access_token;
 }
-if(isset($_REQUEST['oauth_token']) && isset($_SESSION['oauth_token']) && isset($_SESSION['oauth_token_secret'])){
+if (!empty($_SESSION['access_token']) && !empty($_GET['ajax'])) {
 	$CONSUMER_KEY = CONSUMER_KEY;
 	$CONSUMER_SECRET = CONSUMER_SECRET;
-	$rpp = '';
-	$rpp = ($_GET['rpp'] * 1)?$_GET['rpp']:10;
+	$rpp = ($_GET['rpp'] * 1)?$_GET['rpp']:1;
+	$access_token = $_SESSION['access_token'];
+	$connection = new TwitterOAuth(CONSUMER_KEY, CONSUMER_SECRET, $access_token['oauth_token'], $access_token['oauth_token_secret']);
+	//$content =$connection->get('https://api.twitter.com/1.1/search/tweets.json?q=%23'.HASHTAG.'&include_entities=1&count='.$rpp);
 	
-	$connection = new TwitterOAuth($CONSUMER_KEY, $CONSUMER_SECRET, $_SESSION['oauth_token'], $_SESSION['oauth_token_secret']);
-	$access_token = $connection->getAccessToken($_REQUEST['oauth_verifier']);
-	$_SESSION['access_token'] = $access_token;
-	$content =$connection->get('https://api.twitter.com/1.1/search/tweets.json?q=%23jsconfasia&include_entities=1&rpp=');
-	print_r($content);
-	die();
+	$content =$connection->get('https://api.twitter.com/1.1/search/tweets.json?q=%23'.HASHTAG.'&include_entities=1&count='.$rpp.'&max_id='.$_GET['max_id']);
+	//var_dump($content);
+	die(json_encode($content));
 	//print_r($connection);
 	//echo $content->name;
 	if (200 == $connection->http_code) {
@@ -49,8 +110,7 @@ if(isset($_REQUEST['oauth_token']) && isset($_SESSION['oauth_token']) && isset($
 		$_SESSION['status'] = 'verified';
 	}
 }
-?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
     <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
@@ -77,9 +137,9 @@ if(isset($_REQUEST['oauth_token']) && isset($_SESSION['oauth_token']) && isset($
 	<script src="js/superslides/jquery.superslides.min.js"></script>
     <script type="text/javascript">
         $().ready(function () {
-             var rpp = 10;
+             var rpp = 1;
             //retreiveTweets(rpp);
-			$('#nextTweets').attr('rel',"?q=%23susnavgala&rpp=" + rpp + "&include_entities=1");
+			$('#nextTweets').attr('rel','?max_id=&count='+rpp);
 			$('#nextTweets').click(function(){
 				retreiveTweets(rpp);
 				return false;
@@ -97,16 +157,16 @@ if(isset($_REQUEST['oauth_token']) && isset($_SESSION['oauth_token']) && isset($
                     return false
                 }else{
 					$.ajax({
-						url: ' http://search.twitter.com/search.json' + nextPage + '&callback=?',
+						url: 'index.php' + nextPage + '&ajax=1&callback=?',
 						//url:'test.json',
 						dataType: 'json',
 						crossDomain: true,
 						success: function (data) {
-							if(data.next_page==undefined){
+							if(data.next_results==undefined){
 								$('#nextTweets').attr('rel', "");
 								$('#loader').hide();
 							}else{
-								$('#nextTweets').attr('rel', data.next_page);
+								$('#nextTweets').attr('rel', data.next_results);
 							}
 							var r = data.results;
 							var page = parseInt(data.page) - 1;
