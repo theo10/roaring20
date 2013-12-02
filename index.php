@@ -193,7 +193,8 @@ if (!empty($_SESSION['access_token']) && !empty($_GET['ajax'])) {
 											crossDomain: true,
 											success: function (i) {
 												var slideDiv = document.getElementById('slider');
-												$($('ul li')[index]).prepend("<img src='" + i.url + "' width='" + (i.width ) + "' height='" + (i.height) + "'  />");
+												$('ul').find('li').eq(index).prepend("<img src='" + i.url + "' width='" + (i.width ) + "' height='" + (i.height) + "'  />");
+												//$($('ul li')[index]).prepend("<img src='" + i.url + "' width='" + (i.width ) + "' height='" + (i.height) + "'  />");
 											}
 										});
 										
@@ -246,7 +247,7 @@ if (!empty($_SESSION['access_token']) && !empty($_GET['ajax'])) {
 								return false;
 							});
 							$('.togglecontent').unbind('click').bind('click',function () {
-								$(this).parent().children('.container').toggle('slow');
+								$(this).siblings('.container').toggle('slow');
 							});
 							if(page <= 0){
 								$('#slides').superslides({
