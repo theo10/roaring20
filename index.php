@@ -120,8 +120,10 @@ if (!empty($_SESSION['access_token']) && !empty($_GET['ajax'])) {
 	<link rel="stylesheet" href="js/superslides/stylesheets/superslides.css">
 </head>
 <body>
+	<h1 id="loadertext">Fetching Tweets...</h1>
     <div id="slides">
     <ul class="slides-container">
+		
 	</ul>
 	<nav class="slides-navigation">
       <a href="#" class="next">Next</a>
@@ -144,7 +146,7 @@ if (!empty($_SESSION['access_token']) && !empty($_GET['ajax'])) {
 				retreiveTweets(rpp);
 				return false;
 			});
-			$('#nextTweets').trigger('click');
+			//$('#nextTweets').trigger('click');
 			setInterval(function(){
 				$('#nextTweets').trigger('click');
 			},5000);
@@ -162,11 +164,13 @@ if (!empty($_SESSION['access_token']) && !empty($_GET['ajax'])) {
 						dataType: 'json',
 						crossDomain: true,
 						success: function (data) {
-							if(data.next_results==undefined){
+							//console.log(data);return false;
+							$('#loadertext').remove();
+							if(data.search_metadata.next_results==undefined){ //prevents bubbling up when query reached end
 								$('#nextTweets').attr('rel', "");
 								$('#loader').hide();
 							}else{
-								$('#nextTweets').attr('rel', data.next_results);
+								$('#nextTweets').attr('rel', data.search_metadata.next_results);
 							}
 							var r = data.statuses;
 							var page = parseInt(data.search_metadata.max_id);
@@ -182,14 +186,35 @@ if (!empty($_SESSION['access_token']) && !empty($_GET['ajax'])) {
 									var eUrl = urls.expanded_url;
 									index = parseInt(index) + parseInt(multiplier);
 									if (eUrl.indexOf("instagram") != -1) {
-										$.getJSON("http://api.instagram.com/oembed?url=" + eUrl , function (i) {
-											var slideDiv = document.getElementById('slider');
-											//$($('ul li')[index]).prepend("<img src='" + i.url + "' width='" + (i.width * 0.5) + "' height='" + (i.height * 0.5) + "' />");
-											$($('ul li')[index]).prepend("<img src='" + i.url + "' width='" + (i.width ) + "' height='" + (i.height) + "'  />");
-											//$li.prepend("<img src='" + i.url + "' width='" + (i.width ) + "' height='" + (i.height) + "'  />");
-										})
-										.done(function(){ console.log('success', arguments); })
-										.fail(function(){ console.log('failure', arguments); });
+										
+										$.ajax({
+											url:"http://api.instagram.com/oembed?url=" + eUrl+"&callback=?",
+											dataType: 'jsonp',
+											crossDomain: true,
+											success: function (i) {
+												var slideDiv = document.getElementById('slider');
+												$($('ul li')[index]).prepend("<img src='" + i.url + "' width='" + (i.width ) + "' height='" + (i.height) + "'  />");
+											}
+										});
+										
+										//var urlArray = eUrl.split("/");
+										//$.ajax({
+										//	url:"http://instagr.am/p/"+urlArray[4]+"/media/?size=m",
+										//	crossDomain: true,
+										//	success: function (data) {
+										//		var slideDiv = document.getElementById('slider');
+										//		$($('ul li')[index]).prepend("<img src='" + data + "'  />");
+										//	}
+										//});
+										
+										//$.getJSON("http://api.instagram.com/oembed?url=" + eUrl , function (i) {
+										//	var slideDiv = document.getElementById('slider');
+										//	//$($('ul li')[index]).prepend("<img src='" + i.url + "' width='" + (i.width * 0.5) + "' height='" + (i.height * 0.5) + "' />");
+										//	$($('ul li')[index]).prepend("<img src='" + i.url + "' width='" + (i.width ) + "' height='" + (i.height) + "'  />");
+										//	//$li.prepend("<img src='" + i.url + "' width='" + (i.width ) + "' height='" + (i.height) + "'  />");
+										//})
+										//.done(function(){ console.log('success', arguments); })
+										//.fail(function(){ console.log('failure', arguments); });
 									}
 								}else{ //twitter photo
 									if(typeof ent.media !='undefined'){

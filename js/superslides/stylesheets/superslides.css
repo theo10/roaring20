@@ -39,7 +39,7 @@
   display: block;
   z-index: 1;
 }
-#slides .slides-container li .container {
+#slides .slides-container li .container,h1 {
   width: 55%;
   margin: 0 auto 30px auto;
   position: relative;
