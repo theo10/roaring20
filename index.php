@@ -95,7 +95,7 @@ if(!isset($_SESSION['oauth_token']) && !isset($_SESSION['oauth_token_secret'])){
 if (!empty($_SESSION['access_token']) && !empty($_GET['ajax'])) {
 	$CONSUMER_KEY = CONSUMER_KEY;
 	$CONSUMER_SECRET = CONSUMER_SECRET;
-	$rpp = ($_GET['rpp'] * 1)?$_GET['rpp']:1;
+	$rpp = ($_GET['rpp'] * 1)?$_GET['rpp']:10;
 	$access_token = $_SESSION['access_token'];
 	$connection = new TwitterOAuth(CONSUMER_KEY, CONSUMER_SECRET, $access_token['oauth_token'], $access_token['oauth_token_secret']);
 	//$content =$connection->get('https://api.twitter.com/1.1/search/tweets.json?q=%23'.HASHTAG.'&include_entities=1&count='.$rpp);
@@ -137,7 +137,7 @@ if (!empty($_SESSION['access_token']) && !empty($_GET['ajax'])) {
 	<script src="js/superslides/jquery.superslides.min.js"></script>
     <script type="text/javascript">
         $().ready(function () {
-             var rpp = 1;
+             var rpp = 10;
             //retreiveTweets(rpp);
 			$('#nextTweets').attr('rel','?max_id=&count='+rpp);
 			$('#nextTweets').click(function(){
@@ -157,7 +157,7 @@ if (!empty($_SESSION['access_token']) && !empty($_GET['ajax'])) {
                     return false
                 }else{
 					$.ajax({
-						url: 'index.php' + nextPage + '&ajax=1&callback=?',
+						url: 'index.php' + nextPage + '&ajax=1',
 						//url:'test.json',
 						dataType: 'json',
 						crossDomain: true,
@@ -168,12 +168,12 @@ if (!empty($_SESSION['access_token']) && !empty($_GET['ajax'])) {
 							}else{
 								$('#nextTweets').attr('rel', data.next_results);
 							}
-							var r = data.results;
-							var page = parseInt(data.page) - 1;
+							var r = data.statuses;
+							var page = parseInt(data.search_metadata.max_id);
 							var multiplier = page * rpp;
 							$.each(r, function (index, rObj) {
 								//$('ul').append("<li><div class='container'>@" + rObj.from_user + " - " + rObj.text + "</div></li>");
-								$li = $("<li><div class='container'>@" + rObj.from_user + " - " + rObj.text + "</div><a href='#' class='btnremove'>remove</a> | <a href='#' class='togglecontent'>toggle</a></li>");
+								$li = $("<li><div class='container'>@" + rObj.user.screen_name + " - " + rObj.text + "</div><a href='#' class='btnremove'>remove</a> | <a href='#' class='togglecontent'>toggle</a></li>");
 								var ent = rObj.entities;
 								var urls = ent.urls[0];
 								var img = "";
@@ -181,13 +181,15 @@ if (!empty($_SESSION['access_token']) && !empty($_GET['ajax'])) {
 									//fetch instagram image
 									var eUrl = urls.expanded_url;
 									index = parseInt(index) + parseInt(multiplier);
-									if (eUrl.indexOf("instagr.am") != -1) {
-										$.getJSON("http://api.instagram.com/oembed?url=" + eUrl + "&callback=?", function (i) {
+									if (eUrl.indexOf("instagram") != -1) {
+										$.getJSON("http://api.instagram.com/oembed?url=" + eUrl , function (i) {
 											var slideDiv = document.getElementById('slider');
 											//$($('ul li')[index]).prepend("<img src='" + i.url + "' width='" + (i.width * 0.5) + "' height='" + (i.height * 0.5) + "' />");
 											$($('ul li')[index]).prepend("<img src='" + i.url + "' width='" + (i.width ) + "' height='" + (i.height) + "'  />");
 											//$li.prepend("<img src='" + i.url + "' width='" + (i.width ) + "' height='" + (i.height) + "'  />");
-										});
+										})
+										.done(function(){ console.log('success', arguments); })
+										.fail(function(){ console.log('failure', arguments); });
 									}
 								}else{ //twitter photo
 									if(typeof ent.media !='undefined'){
@@ -202,12 +204,13 @@ if (!empty($_SESSION['access_token']) && !empty($_GET['ajax'])) {
 									}
 									
 								}
-								if(page==0){
+								if(page <= 0){
 									$('ul').append($li);
 								}else{
 									$('#slides').superslides('append', $li);
 								}
 							});
+							
 							$('#nextTweets').unbind('click').bind('click',function () {
 								retreiveTweets(rpp);
 								return false;
@@ -220,7 +223,7 @@ if (!empty($_SESSION['access_token']) && !empty($_GET['ajax'])) {
 							$('.togglecontent').unbind('click').bind('click',function () {
 								$(this).parent().children('.container').toggle('slow');
 							});
-							if(page==0){
+							if(page <= 0){
 								$('#slides').superslides({
 									play: true,
 									slide_easing: 'easeInOutCubic',
