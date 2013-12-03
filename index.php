@@ -8,7 +8,7 @@ $CONSUMER_KEY = CONSUMER_KEY;
 $CONSUMER_SECRET = CONSUMER_SECRET;
 $OAUTH_CALLBACK = OAUTH_CALLBACK;
 $HASHTAG = HASHTAG;
-
+$RPP = 10;
 //
 //if(!isset($_SESSION['oauth_token']) && !isset($_SESSION['oauth_token_secret'])){
 //	$connection = new TwitterOAuth($CONSUMER_KEY, $CONSUMER_SECRET);
@@ -95,7 +95,7 @@ if(!isset($_SESSION['oauth_token']) && !isset($_SESSION['oauth_token_secret'])){
 if (!empty($_SESSION['access_token']) && !empty($_GET['ajax'])) {
 	$CONSUMER_KEY = CONSUMER_KEY;
 	$CONSUMER_SECRET = CONSUMER_SECRET;
-	$rpp = ($_GET['rpp'] * 1)?$_GET['rpp']:10;
+	$rpp = ($_GET['rpp'] * 1)?$_GET['rpp']:$RPP;
 	$access_token = $_SESSION['access_token'];
 	$connection = new TwitterOAuth(CONSUMER_KEY, CONSUMER_SECRET, $access_token['oauth_token'], $access_token['oauth_token_secret']);
 	//$content =$connection->get('https://api.twitter.com/1.1/search/tweets.json?q=%23'.HASHTAG.'&include_entities=1&count='.$rpp);
@@ -120,7 +120,7 @@ if (!empty($_SESSION['access_token']) && !empty($_GET['ajax'])) {
 	<link rel="stylesheet" href="js/superslides/stylesheets/superslides.css">
 </head>
 <body>
-	<h1 id="loadertext">Fetching Tweets...</h1>
+	<!--<h1 id="loadertext">Fetching Tweets...</h1>-->
     <div id="slides">
     <ul class="slides-container">
 		
@@ -139,7 +139,7 @@ if (!empty($_SESSION['access_token']) && !empty($_GET['ajax'])) {
 	<script src="js/superslides/jquery.superslides.min.js"></script>
     <script type="text/javascript">
         $().ready(function () {
-             var rpp = 10;
+             var rpp = <?php echo $RPP;?>;
             //retreiveTweets(rpp);
 			$('#nextTweets').attr('rel','?max_id=&count='+rpp);
 			$('#nextTweets').click(function(){
@@ -150,6 +150,7 @@ if (!empty($_SESSION['access_token']) && !empty($_GET['ajax'])) {
 			setInterval(function(){
 				$('#nextTweets').trigger('click');
 			},5000);
+			var currentndex = 0;
             function retreiveTweets(rpp) {
 				$('#loader').show();
                 var nextPage = $('#nextTweets').attr('rel');
@@ -165,7 +166,7 @@ if (!empty($_SESSION['access_token']) && !empty($_GET['ajax'])) {
 						crossDomain: true,
 						success: function (data) {
 							//console.log(data);return false;
-							$('#loadertext').remove();
+							//$('#loadertext').remove();
 							if(data.search_metadata.next_results==undefined){ //prevents bubbling up when query reached end
 								$('#nextTweets').attr('rel', "");
 								$('#loader').hide();
@@ -174,7 +175,7 @@ if (!empty($_SESSION['access_token']) && !empty($_GET['ajax'])) {
 							}
 							var r = data.statuses;
 							var page = parseInt(data.search_metadata.max_id);
-							var multiplier = page * rpp;
+							var multiplier = currentndex * rpp;
 							$.each(r, function (index, rObj) {
 								//$('ul').append("<li><div class='container'>@" + rObj.from_user + " - " + rObj.text + "</div></li>");
 								$li = $("<li><div class='container'>@" + rObj.user.screen_name + " - " + rObj.text + "</div><a href='#' class='btnremove'>remove</a> | <a href='#' class='togglecontent'>toggle</a></li>");
@@ -236,7 +237,7 @@ if (!empty($_SESSION['access_token']) && !empty($_GET['ajax'])) {
 									$('#slides').superslides('append', $li);
 								}
 							});
-							
+							currentndex++;
 							$('#nextTweets').unbind('click').bind('click',function () {
 								retreiveTweets(rpp);
 								return false;
