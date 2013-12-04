@@ -134,8 +134,10 @@ if (!empty($_SESSION['access_token']) && !empty($_GET['ajax'])) {
 	<a id="nextTweets" href="#" rel="">Load Next Tweets</a>
 	<img id="loader" src="images/loading.gif" width="16" height="16" />
 	</div>
-	<script src="js/jquery.min.js"></script>
-	<script src="js/jquery-ui.min.js"></script>
+	<script src="js/jquery.1.9.1.js"></script>
+	<!--<script src="js/jquery-ui.min.js"></script>-->
+	<script src="js/jquery.easing.1.3.js"></script>
+	<script src="js/jquery.animate-enhanced.min.js"></script>
 	<script src="js/superslides/jquery.superslides.min.js"></script>
     <script type="text/javascript">
         $().ready(function () {
@@ -194,8 +196,8 @@ if (!empty($_SESSION['access_token']) && !empty($_GET['ajax'])) {
 											crossDomain: true,
 											success: function (i) {
 												var slideDiv = document.getElementById('slider');
-												$('ul').find('li').eq(index).prepend("<img src='" + i.url + "' width='" + (i.width ) + "' height='" + (i.height) + "'  />");
-												//$($('ul li')[index]).prepend("<img src='" + i.url + "' width='" + (i.width ) + "' height='" + (i.height) + "'  />");
+												$('ul').find('li').eq(index).prepend("<img src='" + i.url + "' width='" + (i.width ) + "' height='" + (i.height) + "' class='preserve'  />");
+												//$($('ul li')[index]).prepend("<img src='" + i.url + "' width='" + (i.width ) + "' height='" + (i.height) + "' class='preserve'  />");
 											}
 										});
 										
@@ -226,7 +228,7 @@ if (!empty($_SESSION['access_token']) && !empty($_GET['ajax'])) {
 											var slideDiv = document.getElementById('slider');
 											var sizes = media.sizes;
 											var chosen_size = sizes.medium;
-											$li.prepend("<img src='" +media['media_url'] + "' width='" + (chosen_size.w ) + "' height='" + (chosen_size.h) + "'  />");
+											$li.prepend("<img src='" +media['media_url'] + "' width='" + (chosen_size.w ) + "' height='" + (chosen_size.h) + "' class='preserve'  />");
 										}
 									}
 									
@@ -234,7 +236,9 @@ if (!empty($_SESSION['access_token']) && !empty($_GET['ajax'])) {
 								if(page <= 0){
 									$('ul').append($li);
 								}else{
-									$('#slides').superslides('append', $li);
+									//$('#slides').superslides('append', $li);
+									$('ul').append($li);
+									$('#slides').superslides('update');
 								}
 							});
 							currentndex++;
@@ -253,10 +257,11 @@ if (!empty($_SESSION['access_token']) && !empty($_GET['ajax'])) {
 							if(page <= 0){
 								$('#slides').superslides({
 									play: true,
-									slide_easing: 'easeInOutCubic',
-									slide_speed: 800,
-									delay: 8000,
-									pagination: false
+									/*slide_easing: 'easeInOutCubic', */
+									animation_speed: 800,
+									play: 8000,
+									pagination: false,
+									animation:'fade'
 								  });
 							}
 							$('#loader').hide();
