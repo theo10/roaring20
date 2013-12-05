@@ -131,6 +131,8 @@ if (!empty($_SESSION['access_token']) && !empty($_GET['ajax'])) {
     </nav>
 	</div>
 	<div id="tweetLoader">
+	<a id="stopButton" href="#">Stop</a>
+	<a id="playButton" href="#">Play</a>
 	<a id="nextTweets" href="#" rel="">Load Next Tweets</a>
 	<img id="loader" src="images/loading.gif" width="16" height="16" />
 	</div>
@@ -244,6 +246,14 @@ if (!empty($_SESSION['access_token']) && !empty($_GET['ajax'])) {
 							currentndex++;
 							$('#nextTweets').unbind('click').bind('click',function () {
 								retreiveTweets(rpp);
+								return false;
+							});
+							$('#stopButton').unbind('click').bind('click',function () {
+								$('#slides').superslides('stop');
+								return false;
+							});
+							$('#playButton').unbind('click').bind('click',function () {
+								$('#slides').superslides('start');
 								return false;
 							});
 							$('.btnremove').unbind('click').bind('click',function () {
